@@ -1,8 +1,9 @@
 import redis
 
+
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 6379
-DEFAULLT_DB = 0
+DEFAULT_DB = 0
 
 
 class RedisDatabase(object):

@@ -1,1 +1,4 @@
-from .module import Database, MONGO
+from .module import Database
+from .module import (
+    MONGO, REDIS
+)

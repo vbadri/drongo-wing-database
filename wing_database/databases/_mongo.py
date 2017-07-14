@@ -18,5 +18,8 @@ class MongoDatabase(object):
 
         self.db = client[name]
 
+    def get(self):
+        return self.db
+
     def get_collection(self, name):
         return self.db[name]
