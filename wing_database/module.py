@@ -1,4 +1,5 @@
 MONGO = 'mongo'
+MYSQL = 'mysql'
 REDIS = 'redis'
 
 
@@ -10,6 +11,9 @@ class Database(object):
         elif kwargs.get('type') == REDIS:
             from .databases._redis import RedisDatabase
             self._inst = RedisDatabase(app, **kwargs)
+        elif kwargs.get('type') == MYSQL:
+            from .databases._mysql import MysqlDatabase
+            self._inst = MysqlDatabase(app, **kwargs)
 
     @property
     def instance(self):
