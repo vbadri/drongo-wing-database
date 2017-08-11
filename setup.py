@@ -25,6 +25,9 @@ setup(
         'Programming Language :: Python',
         'Topic :: Internet :: WWW/HTTP',
     ],
+    install_requires=[
+        'drongo-wing-module==1.0.0',
+    ],
     packages=find_packages(),
     url=REPO_URL,
     download_url=DOWNLOAD_URL,
