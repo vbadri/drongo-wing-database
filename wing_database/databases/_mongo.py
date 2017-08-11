@@ -18,8 +18,11 @@ class MongoDatabase(object):
 
         self.db = client[name]
 
-    def get(self):
-        return self.db
+    def get(self, collection=None):
+        if collection is None:
+            return self.db
+        else:
+            return self.db[collection]
 
     def get_collection(self, name):
         return self.db[name]
