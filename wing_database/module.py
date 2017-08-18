@@ -23,7 +23,7 @@ class Database(Module):
 
     @property
     def type(self):
-        self._type
+        return self._type
 
     @property
     def instance(self):
