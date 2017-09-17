@@ -1,5 +1,7 @@
 from wing_module import Module
 
+import logging
+
 
 class Database(Module):
     # Database types
@@ -7,7 +9,17 @@ class Database(Module):
     MYSQL = 'mysql'
     REDIS = 'redis'
 
+    logger = logging.getLogger('wing_database')
+
     def init(self, config):
+        self.logger.info('Initializing [database] module.')
+
+        setattr(
+            self.app.context.modules.database,
+            config.get('_id'),
+            self
+        )
+
         self._type = config.get('type')
         if self._type == self.MONGO:
             from .databases._mongo import MongoDatabase
