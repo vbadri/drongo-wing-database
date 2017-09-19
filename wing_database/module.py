@@ -23,15 +23,28 @@ class Database(Module):
         self._type = config.get('type')
         if self._type == self.MONGO:
             from .databases._mongo import MongoDatabase
-            self._inst = MongoDatabase(self.app, **config)
+            klass = MongoDatabase
 
         elif self._type == self.REDIS:
             from .databases._redis import RedisDatabase
-            self._inst = RedisDatabase(self.app, **config)
+            klass = RedisDatabase
 
         elif self._type == self.MYSQL:
             from .databases._mysql import MysqlDatabase
-            self._inst = MysqlDatabase(self.app, **config)
+            klass = MysqlDatabase
+
+        else:
+            self.logger.error('Unknown database type!')
+            raise NotImplementedError
+
+        self._inst = klass(self.app, config)
+
+        self.logger.info(
+            'Initialized database [{name}] of type [{type}]'.format(
+                name=config._id,
+                type=config.type
+            )
+        )
 
     @property
     def type(self):

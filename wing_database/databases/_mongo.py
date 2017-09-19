@@ -5,12 +5,12 @@ DEFAULT_PORT = 27017
 
 
 class MongoDatabase(object):
-    def __init__(self, app, **kwargs):
+    def __init__(self, app, config):
         # TODO: connection parameters
-        uri = kwargs.get('uri')
-        host = kwargs.get('host', DEFAULT_HOST)
-        port = kwargs.get('port', DEFAULT_PORT)
-        name = kwargs.get('name')
+        uri = config.get('uri')
+        host = config.get('host', DEFAULT_HOST)
+        port = config.get('port', DEFAULT_PORT)
+        name = config.get('name')
         if uri:
             client = pymongo.MongoClient(uri)
         else:

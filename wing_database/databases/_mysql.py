@@ -8,13 +8,13 @@ DEFAULT_CHARSET = 'utf8'
 
 
 class MysqlDatabase(object):
-    def __init__(self, app, **kwargs):
-        host = kwargs.get('host', DEFAULT_HOST)
-        port = kwargs.get('port', DEFAULT_PORT)
-        user = kwargs.get('user')
-        password = kwargs.get('password')
-        name = kwargs.get('name')
-        charset = kwargs.get('charset', DEFAULT_CHARSET)
+    def __init__(self, app, config):
+        host = config.get('host', DEFAULT_HOST)
+        port = config.get('port', DEFAULT_PORT)
+        user = config.get('user')
+        password = config.get('password')
+        name = config.get('name')
+        charset = config.get('charset', DEFAULT_CHARSET)
 
         self.connection = pymysql.connect(
             host=host,

@@ -7,12 +7,12 @@ DEFAULT_DB = 0
 
 
 class RedisDatabase(object):
-    def __init__(self, app, **kwargs):
+    def __init__(self, app, config):
         # TODO: connection parameters
-        uri = kwargs.get('uri')
-        host = kwargs.get('host', DEFAULT_HOST)
-        port = kwargs.get('port', DEFAULT_PORT)
-        db = kwargs.get('db', DEFAULT_DB)
+        uri = config.get('uri')
+        host = config.get('host', DEFAULT_HOST)
+        port = config.get('port', DEFAULT_PORT)
+        db = config.get('db', DEFAULT_DB)
 
         if uri:
             client = redis.from_url(uri, db=db)
