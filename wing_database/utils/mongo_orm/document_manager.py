@@ -1,12 +1,30 @@
 from bson.objectid import ObjectId
 
 
+class Find(object):
+    def __init__(self, collection, query, klass):
+        self.collection = collection
+        self.query = query
+        self.klass = klass
+
+    def count(self):
+        return self.collection.find(self.query).count()
+
+    def __iter__(self):
+        return iter(
+            map(
+                lambda x: self.klass(**x),
+                self.collection.find(self.query)
+            )
+        )
+
+
 class DocumentManager(object):
     def __init__(self, document_class):
         self.klass = document_class
 
     def all(self):
-        return map(lambda x: self.klass(**x), self.klass.__collection__.find())
+        return self.find()
 
     def insert(self, data):
         _id = self.klass.__collection__.insert_one(data).inserted_id
@@ -16,7 +34,7 @@ class DocumentManager(object):
         ndata = {}
         ndata.update(data)
         _id = ndata.pop('_id')
-        self.klass.__collection__.update_one(dict(_id=_id), {'$set': ndata})
+        self.klass.__collection__.replace_one(dict(_id=_id), ndata)
 
     def delete(self, _id):
         self.klass.__collection__.delete_one(dict(_id=_id))
@@ -38,8 +56,8 @@ class DocumentManager(object):
         if '_id' in kwargs:
             kwargs['_id'] = ObjectId(kwargs['_id'])
 
-        res = self.klass.__collection__.find(kwargs)
-        if res:
-            return map(lambda x: self.klass(**x), res)
-
-        return []
+        return Find(
+            self.klass.__collection__,
+            kwargs,
+            self.klass
+        )

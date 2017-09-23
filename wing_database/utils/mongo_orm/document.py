@@ -39,9 +39,14 @@ class Document(object):
 
         if name in self.__fields__ or name in self.__attr_allow:
             return self._data.get(name)
+
         elif name in self.__resolve__:
             fld, klass = self.__resolve__[name]
-            return klass.objects.find_one(_id=self._data[fld])
+            if fld in self._data:
+                return klass.objects.find_one(_id=self._data[fld])
+            else:
+                return None
+
         elif name in self.__reverse__:
             fld, klass = self.__reverse__[name]
             klass = klass()
@@ -90,7 +95,7 @@ class Document(object):
 
         return self
 
-    def json(self, resolve=None):
+    def json(self, resolve=None, exclude=None):
         result = {}
         result.update(self._data)
         result.pop('__ver')
@@ -98,5 +103,10 @@ class Document(object):
         if resolve:
             for fld in resolve:
                 result[fld] = getattr(self, fld).json()
+
+        if exclude:
+            for fld in exclude:
+                if fld in result:
+                    result.pop(fld)
 
         return result
