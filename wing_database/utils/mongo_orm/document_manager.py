@@ -10,6 +10,12 @@ class Find(object):
     def count(self):
         return self.collection.find(self.query).count()
 
+    def sort(self, *args):
+        return map(
+            lambda x: self.klass(**x),
+            self.collection.find(self.query).sort(*args)
+        )
+
     def __iter__(self):
         return iter(
             map(
