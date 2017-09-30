@@ -1,6 +1,6 @@
-from wing_module import Module
-
 import logging
+
+from wing_module import Module
 
 
 class Database(Module):

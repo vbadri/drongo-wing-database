@@ -1,6 +1,6 @@
-from .document_manager import DocumentManager
-
 import six
+
+from .document_manager import DocumentManager
 
 
 class DocumentMeta(type):
@@ -33,6 +33,9 @@ class Document(object):
             setattr(self, k, v)
         self._dirty = '_id' not in kwargs
 
+    def get(self, name):
+        return getattr(self, name)
+
     def __getattr__(self, name):
         if name in self.__attr_exceptions:
             return super(Document, self).__getattr__(name)
@@ -42,7 +45,7 @@ class Document(object):
 
         elif name in self.__resolve__:
             fld, klass = self.__resolve__[name]
-            if fld in self._data:
+            if fld in self._data and self._data[fld] is not None:
                 return klass.objects.find_one(_id=self._data[fld])
             else:
                 return None
@@ -102,7 +105,9 @@ class Document(object):
 
         if resolve:
             for fld in resolve:
-                result[fld] = getattr(self, fld).json()
+                result[fld] = getattr(self, fld)
+                if result[fld] is not None:
+                    result[fld] = result[fld].json()
 
         if exclude:
             for fld in exclude:
