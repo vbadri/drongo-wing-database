@@ -40,15 +40,19 @@ class Document(object):
         if name in self.__attr_exceptions:
             return super(Document, self).__getattr__(name)
 
-        if name in self.__fields__ or name in self.__attr_allow:
-            return self._data.get(name)
-
         elif name in self.__resolve__:
             fld, klass = self.__resolve__[name]
-            if fld in self._data and self._data[fld] is not None:
-                return klass.objects.find_one(_id=self._data[fld])
+            if fld == '__inline__':
+                print(klass, self._data[name])
+                return klass(**self._data[name])
             else:
-                return None
+                if fld in self._data and self._data[fld] is not None:
+                    return klass.objects.find_one(_id=self._data[fld])
+                else:
+                    return None
+
+        elif name in self.__fields__ or name in self.__attr_allow:
+            return self._data.get(name)
 
         elif name in self.__reverse__:
             fld, klass = self.__reverse__[name]
@@ -64,6 +68,7 @@ class Document(object):
         if name in self.__fields__ or name in self.__attr_allow:
             self._data[name] = value
             self._dirty = True
+
         elif name in self.__resolve__:
             fld, klass = self.__resolve__[name]
             if not isinstance(value, klass):
@@ -98,6 +103,17 @@ class Document(object):
 
         return self
 
+    def _resolve(self, result, fld):
+        if isinstance(fld, dict):
+            for fld2, fld_resolve in fld.items():
+                result[fld2] = self.get(fld2)
+                if hasattr(result[fld2], 'json'):
+                    result[fld2] = result[fld2].json(resolve=fld_resolve)
+        else:
+            result[fld] = self.get(fld)
+            if hasattr(result[fld], 'json'):
+                result[fld] = result[fld].json()
+
     def json(self, resolve=None, exclude=None):
         result = {}
         result.update(self._data)
@@ -105,9 +121,7 @@ class Document(object):
 
         if resolve:
             for fld in resolve:
-                result[fld] = getattr(self, fld)
-                if result[fld] is not None:
-                    result[fld] = result[fld].json()
+                self._resolve(result, fld)
 
         if exclude:
             for fld in exclude:
@@ -129,6 +143,7 @@ class MiniDocument(object):
     __attr_allow = ('_id', '__ver')
 
     def __init__(self, **kwargs):
+        print('MINI DOC', kwargs)
         self._data = {}
         for k, v in kwargs.items():
             setattr(self, k, v)
@@ -136,7 +151,7 @@ class MiniDocument(object):
 
     def __getattr__(self, name):
         if name in self.__attr_exceptions:
-            return super(Document, self).__getattr__(name)
+            return super(MiniDocument, self).__getattr__(name)
 
         if name in self.__fields__ or name in self.__attr_allow:
             return self._data.get(name)
@@ -153,11 +168,11 @@ class MiniDocument(object):
             klass = klass()
             return klass.objects.find(**{fld: self._id})
 
-        return super(Document, self).__getattr__(name)
+        return super(MiniDocument, self).__getattr__(name)
 
     def __setattr__(self, name, value):
         if name in self.__attr_exceptions:
-            return super(Document, self).__setattr__(name, value)
+            return super(MiniDocument, self).__setattr__(name, value)
 
         if name in self.__fields__ or name in self.__attr_allow:
             self._data[name] = value
