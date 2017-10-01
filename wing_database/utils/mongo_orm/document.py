@@ -43,7 +43,6 @@ class Document(object):
         elif name in self.__resolve__:
             fld, klass = self.__resolve__[name]
             if fld == '__inline__':
-                print(klass, self._data[name])
                 return klass(**self._data[name])
             else:
                 if fld in self._data and self._data[fld] is not None:
@@ -143,7 +142,6 @@ class MiniDocument(object):
     __attr_allow = ('_id', '__ver')
 
     def __init__(self, **kwargs):
-        print('MINI DOC', kwargs)
         self._data = {}
         for k, v in kwargs.items():
             setattr(self, k, v)
