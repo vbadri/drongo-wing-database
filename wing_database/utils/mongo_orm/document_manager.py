@@ -67,3 +67,6 @@ class DocumentManager(object):
             kwargs,
             self.klass
         )
+
+    def find_raw(self, *args, **kwargs):
+        return self.klass.__collection__.find(*args, **kwargs)
