@@ -196,7 +196,7 @@ class MiniDocument(object):
 
     def json(self, resolve=None, exclude=None):
         result = {}
-        result.update(self._data)
+        result.update(self._parent._data.get(self._name, {}))
 
         if resolve:
             for fld in resolve:
