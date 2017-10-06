@@ -43,7 +43,8 @@ class Document(object):
         elif name in self.__resolve__:
             fld, klass = self.__resolve__[name]
             if fld == '__inline__':
-                return klass(**self._data[name])
+                res = klass(self, name)
+                return res
             else:
                 if fld in self._data and self._data[fld] is not None:
                     return klass.objects.find_one(_id=self._data[fld])
@@ -138,26 +139,32 @@ class MiniDocument(object):
     __reverse__ = {}
     __autos__ = {}
 
-    __attr_exceptions = ('_data', '_dirty')
+    __attr_exceptions = ('_parent', '_name')
     __attr_allow = ('_id', '__ver')
 
-    def __init__(self, **kwargs):
-        self._data = {}
-        for k, v in kwargs.items():
+    def __init__(self, parent, name):
+        self._parent = parent
+        self._name = name
+
+    def get(self, name):
+        return getattr(self, name)
+
+    def update(self, other):
+        for k, v in other.items():
             setattr(self, k, v)
-        self._dirty = '_id' not in kwargs
 
     def __getattr__(self, name):
         if name in self.__attr_exceptions:
             return super(MiniDocument, self).__getattr__(name)
 
         if name in self.__fields__ or name in self.__attr_allow:
-            return self._data.get(name)
+            return self._parent._data.get(self._name, {}).get(name)
 
         elif name in self.__resolve__:
             fld, klass = self.__resolve__[name]
-            if fld in self._data:
-                return klass.objects.find_one(_id=self._data[fld])
+            if fld in self._parent._data.get(self._name, {}):
+                return klass.objects.find_one(
+                    _id=self._parent._data.get(self._name, {})[fld])
             else:
                 return None
 
@@ -173,13 +180,14 @@ class MiniDocument(object):
             return super(MiniDocument, self).__setattr__(name, value)
 
         if name in self.__fields__ or name in self.__attr_allow:
-            self._data[name] = value
-            self._dirty = True
+            self._parent._data.setdefault(self._name, {})[name] = value
+            self._parent._dirty = True
+
         elif name in self.__resolve__:
             fld, klass = self.__resolve__[name]
             if not isinstance(value, klass):
                 raise ValueError
-            self._data[fld] = value._id
+            self._parent._data.setdefault(self._name, {})[fld] = value._id
         else:
             raise AttributeError
 
