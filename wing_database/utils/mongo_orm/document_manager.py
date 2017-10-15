@@ -70,3 +70,11 @@ class DocumentManager(object):
 
     def find_raw(self, *args, **kwargs):
         return self.klass.__collection__.find(*args, **kwargs)
+
+    def migrate(self, migrations):
+        for item in self.find():
+            if item._data['__ver'] != self.klass.__version__:
+                meth = migrations.get(
+                    (item._data['__ver'], self.klass.__version__))
+                if meth:
+                    meth(item)
