@@ -11,7 +11,7 @@ class Database(Module):
 
     logger = logging.getLogger('wing_database')
 
-    def init(self, config):
+    def init(self, app, config):
         self.logger.info('config : '.format(config))
         self.logger.info('Initializing [database] module with id {}.'.format(config.get('_id')))
 
